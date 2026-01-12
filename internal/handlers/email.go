@@ -3,15 +3,16 @@ package handlers
 import (
 	"net/http"
 	"secmail/internal/email"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type SendEmailRequest struct {
-	Recipients []uint `json:"recipients" binding:"required"`
-	Subject    string `json:"subject" binding:"required"`
-	Body       string `json:"body" binding:"required"`
+	Recipients []uint `json:"recipients" binding:"required,dive,min=1,max=10"`
+	Subject    string `json:"subject" binding:"required,max=100"`
+	Body       string `json:"body" binding:"required,max=10000"`
 }
 
 type InboxResponse struct {
@@ -32,6 +33,10 @@ func SendEmail(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Sanitize inputs
+	req.Subject = strings.TrimSpace(req.Subject)
+	req.Body = strings.TrimSpace(req.Body)
 
 	err := email.SendMessage(userID, req.Recipients, req.Subject, req.Body, db)
 	if err != nil {

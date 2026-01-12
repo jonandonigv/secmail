@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"secmail/internal/crypto"
 	"secmail/internal/models"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,18 +15,26 @@ import (
 	"gorm.io/gorm"
 )
 
-var jwtSecret = []byte("your-secret-key") // In production, use env var
+var jwtSecret = getJWTSecret()
+
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		log.Fatal("JWT_SECRET environment variable not set")
+	}
+	return []byte(secret)
+}
 
 // RegisterRequest represents the request body for user registration
 type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Email    string `json:"email" binding:"required,email,max=254"`
+	Password string `json:"password" binding:"required,min=6,max=128"`
 }
 
 // LoginRequest represents the request body for user login
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required,email,max=254"`
+	Password string `json:"password" binding:"required,min=1,max=128"`
 }
 
 // Register handles user registration
@@ -33,6 +44,10 @@ func Register(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Sanitize inputs
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -70,6 +85,10 @@ func Login(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Sanitize inputs
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
 
 	// Find user
 	var user models.User
