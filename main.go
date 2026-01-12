@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"secmail/internal/auth"
 	"secmail/internal/database"
 	"secmail/internal/handlers"
@@ -10,8 +11,11 @@ import (
 )
 
 func main() {
-	// Database DSN - adjust as needed
-	dsn := "host=localhost user=postgres password=postgres dbname=secmail port=5432 sslmode=disable"
+	// Database DSN from environment variable
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL environment variable not set")
+	}
 
 	db, err := database.InitDB(dsn)
 	if err != nil {
