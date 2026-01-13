@@ -12,13 +12,15 @@ Secmail is an early-stage secure email system built in Go, designed to provide e
 
 ## Current Phase
 
-**Phase 2 (Core Email)**: Completed. The system now supports basic send/receive functionality with full encryption. Users can register, login, send encrypted emails, and retrieve them from their inbox via REST API.
+**Phase 2 (Core Email)**: Completed. The system supports basic send/receive functionality with full end-to-end encryption. Recent updates include security hardening (environment variables for secrets, input validation/sanitization) and basic unit tests for crypto and auth functions. Users can register, login, send encrypted emails, and retrieve them from their inbox via REST API.
 
 ## Upcoming Phases
 
 - **Phase 3 (Advanced Features)**: Add support for attachments, email conversations/threading, and full-text search across messages.
 - **Phase 4 (Web UI & Polish)**: Implement a simple web interface for email composition and inbox viewing, along with error handling and logging improvements.
-- **Phase 5 (Testing & Demo)**: Add unit tests for encryption logic, API tests, and a basic security audit. Prepare for demo deployment.
+- **Phase 5 (Testing & Demo)**: Expand unit tests to cover all components, add integration tests, perform security audit, and prepare for demo deployment.
+
+**Project Status**: Development is currently on halt. The project will resume when the owner decides to continue.
 
 ## Prerequisites
 
@@ -39,15 +41,18 @@ Secmail is an early-stage secure email system built in Go, designed to provide e
    ```
 
 3. Set up PostgreSQL:
-   - Create a database named `secmail`.
-   - Update the DSN in `main.go` if needed (default: `host=localhost user=postgres password=postgres dbname=secmail port=5432 sslmode=disable`).
+    - Create a database named `secmail`.
+    - Set the `DATABASE_URL` environment variable (e.g., `export DATABASE_URL="host=localhost user=postgres password=postgres dbname=secmail port=5432 sslmode=disable"`).
 
-4. Run the server:
-   ```
-   go run main.go
-   ```
+4. Set required environment variables:
+    - `JWT_SECRET`: A secret key for JWT token signing (e.g., `export JWT_SECRET="your-secret-key"`).
 
-5. The API will be available at `http://localhost:8080`.
+5. Run the server:
+    ```
+    go run main.go
+    ```
+
+6. The API will be available at `http://localhost:8080`.
 
 ## API Endpoints
 
@@ -66,7 +71,7 @@ Secmail is an early-stage secure email system built in Go, designed to provide e
 
 ## Contributing
 
-This project is in active development. Contributions are welcome for the upcoming phases.
+Development is currently paused. Contributions may be considered once development resumes.
 
 ## License
 
