@@ -16,9 +16,12 @@ func GenerateRSAKeyPair() (publicKeyPEM, privateKeyPEM []byte, err error) {
 	}
 
 	// Encode private key to PEM
-	privateKeyDER := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyDER, err := x509.MarshalPKCS8PrivateKey(privateKey)
+	if err != nil {
+		return nil, nil, err
+	}
 	privateKeyBlock := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type:  "PRIVATE KEY",
 		Bytes: privateKeyDER,
 	}
 	privateKeyPEM = pem.EncodeToMemory(privateKeyBlock)
@@ -29,7 +32,7 @@ func GenerateRSAKeyPair() (publicKeyPEM, privateKeyPEM []byte, err error) {
 		return nil, nil, err
 	}
 	publicKeyBlock := &pem.Block{
-		Type:  "RSA PUBLIC KEY",
+		Type:  "PUBLIC KEY",
 		Bytes: publicKeyDER,
 	}
 	publicKeyPEM = pem.EncodeToMemory(publicKeyBlock)

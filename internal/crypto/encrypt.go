@@ -69,7 +69,7 @@ func DecryptBody(ciphertext []byte, passphrase string) (plaintext []byte, err er
 func EncryptPassphrase(passphrase string, publicKeyPEM []byte) ([]byte, error) {
 	// Parse public key
 	block, _ := pem.Decode(publicKeyPEM)
-	if block == nil || block.Type != "RSA PUBLIC KEY" {
+	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, errors.New("not an RSA public key")
 	}
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -90,15 +90,19 @@ func EncryptPassphrase(passphrase string, publicKeyPEM []byte) ([]byte, error) {
 func DecryptPassphrase(encrypted []byte, privateKeyPEM []byte) (string, error) {
 	// Parse private key
 	block, _ := pem.Decode(privateKeyPEM)
-	if block == nil || block.Type != "RSA PRIVATE KEY" {
+	if block == nil || block.Type != "PRIVATE KEY" {
 		return "", errors.New("not an RSA private key")
 	}
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return "", err
 	}
+	rsaPriv, ok := priv.(*rsa.PrivateKey)
+	if !ok {
+		return "", errors.New("not an RSA private key")
+	}
 
 	// Decrypt
-	decrypted, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priv, encrypted, nil)
+	decrypted, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, rsaPriv, encrypted, nil)
 	return string(decrypted), err
 }
