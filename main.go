@@ -40,8 +40,20 @@ func main() {
 		emails.POST("/send", func(c *gin.Context) {
 			handlers.SendEmail(c, db)
 		})
+		emails.POST("/reply", func(c *gin.Context) {
+			handlers.ReplyEmail(c, db)
+		})
 		emails.GET("/inbox", func(c *gin.Context) {
 			handlers.GetInbox(c, db)
+		})
+		emails.GET("/sent", func(c *gin.Context) {
+			handlers.GetSent(c, db)
+		})
+		emails.GET("/conversation/:id", func(c *gin.Context) {
+			handlers.GetConversation(c, db)
+		})
+		emails.DELETE("/:id", func(c *gin.Context) {
+			handlers.DeleteEmail(c, db)
 		})
 	}
 
